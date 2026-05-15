@@ -17,10 +17,11 @@ import {
   DISCORD_REDIRECT_URI,
   AuthenticatedRequest,
 } from "./auth";
-import { 
-  people, initDb, ADMIN_DISCORD_IDS, 
-  hasUserSubmitted, saveResult, getAllResults 
+import {
+  people, initDb, ADMIN_DISCORD_IDS,
+  hasUserSubmitted, saveResult, getAllResults
 } from "./db";
+import { ResultEntry } from "./models";
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -136,7 +137,7 @@ apiRouter.get("/new", checkAuthenticatedUser, (_req, res) => {
  * Receives the professor placement data from a user.
  */
 apiRouter.post("/send", checkAuthenticatedUser, async (req: AuthenticatedRequest, res) => {
-  const newResults = req.body.results;
+  const newResults = req.body.results as ResultEntry[];
 
   if (!Array.isArray(newResults)) {
     return res.status(400).json({ error: "Invalid results format" });
@@ -181,7 +182,7 @@ apiRouter.get("/stats", async (_req, res) => {
   const stats: Record<string, { totalQ: number; totalC: number; count: number; name: string }> = {};
 
   results.forEach(r => {
-    r.entries.forEach(e => {
+    r.entries.forEach((e: ResultEntry) => {
       const id = e.personne.image.id;
       if (!stats[id]) {
         stats[id] = { totalQ: 0, totalC: 0, count: 0, name: e.personne.name };
@@ -232,9 +233,13 @@ app.use(express.static(frontendPath, {
 }));
 
 // ─── Final startup ────────────────────────────────────────────────
-initDb();
-app.listen(PORT, () => {
-  console.log(`🚀  API running on http://localhost:${PORT}`);
-  console.log(`   Discord redirect URI: ${process.env.DISCORD_REDIRECT_URI || "(not set)"}`);
-  console.log(`   SQLite database initialized`);
+initDb().then(() => {
+  app.listen(PORT, () => {
+    console.log(`🚀  API running on http://localhost:${PORT}`);
+    console.log(`   Discord redirect URI: ${process.env.DISCORD_REDIRECT_URI || "(not set)"}`);
+    console.log(`   PostgreSQL database initialized`);
+  });
+}).catch(err => {
+  console.error("Failed to initialize database:", err);
+  process.exit(1);
 });

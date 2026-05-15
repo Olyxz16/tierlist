@@ -1,0 +1,28 @@
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: tierlist-postgresql
+  namespace: kube-system
+spec:
+  chart: postgresql
+  repo: https://charts.bitnami.com/bitnami
+  targetNamespace: tierlist
+  valuesContent: |
+    global:
+      postgresql:
+        auth:
+          username: tierlist
+          database: tierlist
+          existingSecret: tierlist-secrets
+          secretKeys:
+            userPasswordKey: POSTGRES_PASSWORD
+            adminPasswordKey: POSTGRES_PASSWORD
+
+    primary:
+      persistence:
+        enabled: true
+        size: 10Gi
+        storageClass: local-path
+
+    metrics:
+      enabled: true

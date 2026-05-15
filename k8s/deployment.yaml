@@ -28,9 +28,12 @@ spec:
                 name: tierlist-config
             - secretRef:
                 name: tierlist-secrets
-          volumeMounts:
-            - name: sqlite-data
-              mountPath: /app/data
+          env:
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: tierlist-secrets
+                  key: POSTGRES_PASSWORD
           resources:
             requests:
               memory: "128Mi"
@@ -50,7 +53,4 @@ spec:
               port: http
             initialDelaySeconds: 5
             periodSeconds: 10
-      volumes:
-        - name: sqlite-data
-          persistentVolumeClaim:
-            claimName: tierlist-sqlite
+      # No volumes needed for SQLite anymore

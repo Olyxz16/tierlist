@@ -11,7 +11,6 @@ RUN npm run build
 
 # ─── Stage 2: Build Backend ────────────────────────────────────────
 FROM node:20-alpine AS backend-builder
-RUN apk add --no-cache python3 make g++
 WORKDIR /app/api
 COPY api/package.json api/package-lock.json ./
 RUN npm install
@@ -22,11 +21,8 @@ RUN npm run build
 FROM node:20-alpine AS production
 WORKDIR /app
 
-# Install build deps for better-sqlite3 native module, then remove after install
-RUN apk add --no-cache python3 make g++
 COPY api/package.json api/package-lock.json ./
 RUN npm install --omit=dev
-RUN apk del python3 make g++
 
 # Copy built backend
 COPY --from=backend-builder /app/api/dist ./dist

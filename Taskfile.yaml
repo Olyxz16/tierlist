@@ -12,13 +12,18 @@ tasks:
     desc: "Deploy to k3s with SOPS decryption"
     cmds:
       - kubectl apply -f k8s/namespace.yaml
+      - task: deploy:postgres
       - kubectl apply -f k8s/cluster-issuer.yaml
       - kubectl apply -f k8s/configmap.yaml
       - sops -d k8s/secret.yaml | kubectl apply -f -
-      - kubectl apply -f k8s/pvc.yaml
       - kubectl apply -f k8s/service.yaml
       - kubectl apply -f k8s/deployment.yaml
       - kubectl apply -f k8s/ingress.yaml
+
+  deploy:postgres:
+    desc: "Deploy PostgreSQL via K3s Helm Controller"
+    cmds:
+      - kubectl apply -f k8s/postgres-helm.yaml
 
   deploy:k3s:
     desc: "Build image, load into k3s containerd, then deploy"

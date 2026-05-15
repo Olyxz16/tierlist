@@ -9,4 +9,7 @@ data:
   FRONTEND_URL: "https://tierlist.cedricsazos.com"
   DISCORD_REDIRECT_URI: "https://tierlist.cedricsazos.com/api/auth/discord/callback"
   NEXT_PUBLIC_API_URL: "https://tierlist.cedricsazos.com/api"
-  DB_PATH: "/app/data/database.sqlite"
+  DB_USER: "tierlist"
+  DB_HOST: "tierlist-postgresql"
+  DB_NAME: "tierlist"
+  DB_PORT: "5432"
